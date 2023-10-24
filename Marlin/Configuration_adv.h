@@ -281,6 +281,7 @@
   #ifndef TEMP_BOARD_PIN
   //#define TEMP_BOARD_PIN -1      // Board temp sensor pin, if not set in pins file.
   #endif
+#endif
 
 //
 // SoC Sensor options
