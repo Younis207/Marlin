@@ -68,7 +68,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #define MOTHERBOARD BOARD_BTT_OCTOPUS_V1_1
 #endif
 
 /**
@@ -79,7 +79,7 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 0
+#define SERIAL_PORT -1
 
 /**
  * Serial Port Baud Rate
@@ -139,12 +139,12 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-#define X_DRIVER_TYPE  A4988
-#define Y_DRIVER_TYPE  A4988
-#define Z_DRIVER_TYPE  A4988
+#define X_DRIVER_TYPE  TMC2209
+#define Y_DRIVER_TYPE  TMC2209
+#define Z_DRIVER_TYPE  TMC2209
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
-//#define Z2_DRIVER_TYPE A4988
+//#define Z2_DRIVER_TYPE TMC2209
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
 //#define I_DRIVER_TYPE  A4988
@@ -153,7 +153,7 @@
 //#define U_DRIVER_TYPE  A4988
 //#define V_DRIVER_TYPE  A4988
 //#define W_DRIVER_TYPE  A4988
-#define E0_DRIVER_TYPE A4988
+#define E0_DRIVER_TYPE TMC2209                                                                                                                                                                                                                                                                                                                                                                                                                                           
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
@@ -554,7 +554,7 @@
 #define TEMP_SENSOR_7 0
 #define TEMP_SENSOR_BED 1
 #define TEMP_SENSOR_PROBE 0
-#define TEMP_SENSOR_CHAMBER 0
+#define TEMP_SENSOR_CHAMBER 1
 #define TEMP_SENSOR_COOLER 0
 #define TEMP_SENSOR_BOARD 0
 #define TEMP_SENSOR_SOC 0
@@ -763,6 +763,16 @@
  * With this option disabled, bang-bang will be used. BED_LIMIT_SWITCHING enables hysteresis.
  */
 //#define PIDTEMPBED
+
+//#define BED_LIMIT_SWITCHING
+
+/**
+ * Max Bed Power
+ * Applies to all forms of bed control (PID, bang-bang, and bang-bang with hysteresis).
+ * When set to any value below 255, enables a form of PWM to the bed that acts like a divider
+ * so don't use it unless you are OK with PWM on your bed. (See the comment on enabling PIDTEMPBED)
+ */
+#define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
 #if ENABLED(PIDTEMPBED)
   //#define MIN_BED_POWER 0
@@ -1034,7 +1044,6 @@
   #define THETA_HOMING_OFFSET  0
   #define PSI_HOMING_OFFSET    0
 #endif
-
 // @section polar
 
 /**
@@ -1103,6 +1112,28 @@
 
 // @section endstops
 
+// Specify here all the endstop connectors that are connected to any endstop or probe.
+// Almost all printers will be using one per axis. Probes will use one or more of the
+// extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
+#define USE_XMIN_PLUG
+#define USE_YMIN_PLUG
+#define USE_ZMIN_PLUG
+//#define USE_IMIN_PLUG
+//#define USE_JMIN_PLUG
+//#define USE_KMIN_PLUG
+//#define USE_UMIN_PLUG
+//#define USE_VMIN_PLUG
+//#define USE_WMIN_PLUG
+//#define USE_XMAX_PLUG
+//#define USE_YMAX_PLUG
+//#define USE_ZMAX_PLUG
+//#define USE_IMAX_PLUG
+//#define USE_JMAX_PLUG
+//#define USE_KMAX_PLUG
+//#define USE_UMAX_PLUG
+//#define USE_VMAX_PLUG
+//#define USE_WMAX_PLUG
+
 // Enable pullup for all endstops to prevent a floating state
 #define ENDSTOPPULLUPS
 #if DISABLED(ENDSTOPPULLUPS)
@@ -1153,29 +1184,26 @@
   //#define ENDSTOPPULLDOWN_ZMIN_PROBE
 #endif
 
-/**
- * Endstop "Hit" State
- * Set to the state (HIGH or LOW) that applies to each endstop.
- */
-#define X_MIN_ENDSTOP_HIT_STATE HIGH
-#define X_MAX_ENDSTOP_HIT_STATE HIGH
-#define Y_MIN_ENDSTOP_HIT_STATE HIGH
-#define Y_MAX_ENDSTOP_HIT_STATE HIGH
-#define Z_MIN_ENDSTOP_HIT_STATE HIGH
-#define Z_MAX_ENDSTOP_HIT_STATE HIGH
-#define I_MIN_ENDSTOP_HIT_STATE HIGH
-#define I_MAX_ENDSTOP_HIT_STATE HIGH
-#define J_MIN_ENDSTOP_HIT_STATE HIGH
-#define J_MAX_ENDSTOP_HIT_STATE HIGH
-#define K_MIN_ENDSTOP_HIT_STATE HIGH
-#define K_MAX_ENDSTOP_HIT_STATE HIGH
-#define U_MIN_ENDSTOP_HIT_STATE HIGH
-#define U_MAX_ENDSTOP_HIT_STATE HIGH
-#define V_MIN_ENDSTOP_HIT_STATE HIGH
-#define V_MAX_ENDSTOP_HIT_STATE HIGH
-#define W_MIN_ENDSTOP_HIT_STATE HIGH
-#define W_MAX_ENDSTOP_HIT_STATE HIGH
-#define Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH
+// Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
+#define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define I_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define J_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define K_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define U_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define V_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define W_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Y_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define I_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define J_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define K_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define U_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define V_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define W_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -1223,7 +1251,7 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 500 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 100}
 
 /**
  * Default Max Feed Rate (linear=mm/s, rotational=°/s)
@@ -1332,7 +1360,7 @@
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 // Force the use of the probe for Z-axis homing
-//#define USE_PROBE_FOR_Z_HOMING
+#define USE_PROBE_FOR_Z_HOMING
 
 /**
  * Z_MIN_PROBE_PIN
@@ -1385,11 +1413,10 @@
   //#define Z_SERVO_INTERMEDIATE_STOW     // Stow the probe between points
   //#define Z_SERVO_DEACTIVATE_AFTER_STOW // Deactivate the servo when probe is stowed
 #endif
-
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
+#define BLTOUCH
 
 /**
  * MagLev V4 probe by MDD
@@ -1693,30 +1720,29 @@
 
 // Disable axis steppers immediately when they're not being stepped.
 // WARNING: When motors turn off there is a chance of losing position accuracy!
-//#define DISABLE_X
-//#define DISABLE_Y
-//#define DISABLE_Z
-//#define DISABLE_I
-//#define DISABLE_J
-//#define DISABLE_K
-//#define DISABLE_U
-//#define DISABLE_V
-//#define DISABLE_W
+#define DISABLE_X false
+#define DISABLE_Y false
+#define DISABLE_Z false
+//#define DISABLE_I false
+//#define DISABLE_J false
+//#define DISABLE_K false
+//#define DISABLE_U false
+//#define DISABLE_V false
+//#define DISABLE_W false
 
 // Turn off the display blinking that warns about possible accuracy reduction
 //#define DISABLE_REDUCED_ACCURACY_WARNING
 
 // @section extruder
 
-//#define DISABLE_E               // Disable the extruder when not stepping
+#define DISABLE_E               // Disable the extruder when not stepping
 #define DISABLE_OTHER_EXTRUDERS   // Keep only the active extruder enabled
-
 // @section motion
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false
+#define INVERT_X_DIR true
 #define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
+#define INVERT_Z_DIR true
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
 //#define INVERT_K_DIR false
@@ -1727,7 +1753,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1749,7 +1775,7 @@
 //#define Z_IDLE_HEIGHT Z_HOME_POS
 
 //#define Z_CLEARANCE_FOR_HOMING  4 // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
-                                    // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
+                                  // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
 
 //#define Z_AFTER_HOMING         10 // (mm) Height to move to after homing (if Z was homed)
 
@@ -1783,8 +1809,8 @@
 // @section geometry
 
 // The size of the printable area
-#define X_BED_SIZE 200
-#define Y_BED_SIZE 200
+#define X_BED_SIZE 310
+#define Y_BED_SIZE 310
 
 // Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1792,7 +1818,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 200
+#define Z_MAX_POS 450
 //#define I_MIN_POS 0
 //#define I_MAX_POS 50
 //#define J_MIN_POS 0
@@ -2005,7 +2031,7 @@
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
+#define MESH_BED_LEVELING
 
 /**
  * Commands to execute at the end of G29 probing.
@@ -2110,7 +2136,7 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-  //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
+  #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
@@ -2166,12 +2192,12 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-//#define LCD_BED_LEVELING
+#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4     // (mm) Z Range centered on Z_MIN_POS for LCD Z adjustment
-  //#define MESH_EDIT_MENU        // Add a menu to edit mesh points
+  #define MESH_EDIT_MENU        // Add a menu to edit mesh points
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
@@ -2233,12 +2259,12 @@
  * - Allows Z homing only when XY positions are known and trusted.
  * - If stepper drivers sleep, XY homing may be required again before Z homing.
  */
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
   #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
-  //#define Z_SAFE_HOMING_POINT_ABSOLUTE  // Ignore home offsets (M206) for Z homing position
+    //#define Z_SAFE_HOMING_POINT_ABSOLUTE  // Ignore home offsets (M206) for Z homing position
 #endif
 
 // Homing speeds (linear=mm/min, rotational=°/min)
@@ -2320,7 +2346,7 @@
  *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
-//#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
+#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of flash. Disable for release!
 #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
@@ -2610,7 +2636,7 @@
  * SD Card support is disabled by default. If your controller has an SD slot,
  * you must uncomment the following option or it won't work.
  */
-//#define SDSUPPORT
+#define SDSUPPORT
 
 /**
  * SD CARD: ENABLE CRC
@@ -2657,7 +2683,7 @@
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
 //
-//#define REVERSE_ENCODER_DIRECTION
+#define REVERSE_ENCODER_DIRECTION
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
@@ -2680,18 +2706,18 @@
 //
 // This option increases encoder samples to filter out phantom encoder clicks caused by EMI noise.
 //
-//#define ENCODER_NOISE_FILTER
+#define ENCODER_NOISE_FILTER
 #if ENABLED(ENCODER_NOISE_FILTER)
   #define ENCODER_SAMPLES 10
 #endif
 
 //
-// Individual Axis Homing
+ // Individual Axis Homing
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-//#define INDIVIDUAL_AXIS_HOMING_MENU
-//#define INDIVIDUAL_AXIS_HOMING_SUBMENU
+#define INDIVIDUAL_AXIS_HOMING_MENU
+#define INDIVIDUAL_AXIS_HOMING_SUBMENU
 
 //
 // SPEAKER/BUZZER
@@ -2893,7 +2919,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // K.3D Full Graphic Smart Controller
@@ -3550,7 +3576,7 @@
  * Set this manually if there are extra servos needing manual control.
  * Set to 0 to turn off servo support.
  */
-//#define NUM_SERVOS 3 // Note: Servo index starts with 0 for M280-M282 commands
+#define NUM_SERVOS 1 // Note: Servo index starts with 0 for M280-M282 commands
 
 // (ms) Delay before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
